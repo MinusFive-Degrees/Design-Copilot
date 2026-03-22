@@ -1,0 +1,1370 @@
+<!doctype html>
+<html lang="zh-Hans">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Design Copilot 统一工作台</title>
+		<style>
+			:root {
+				--bg: #eef2f1;
+				--bg-deep: #152126;
+				--card: rgba(255, 252, 245, 0.88);
+				--card-strong: rgba(250, 246, 238, 0.98);
+				--line: rgba(26, 41, 46, 0.12);
+				--text: #162126;
+				--muted: #66757c;
+				--accent: #d86f24;
+				--accent-deep: #9d4214;
+				--accent-soft: rgba(216, 111, 36, 0.12);
+				--teal: #1e6d67;
+				--teal-soft: rgba(30, 109, 103, 0.12);
+				--danger: #a73c2f;
+				--shadow: 0 28px 80px rgba(13, 27, 33, 0.12);
+				--radius: 24px;
+				--radius-sm: 16px;
+			}
+
+			* {
+				box-sizing: border-box;
+			}
+
+			html,
+			body {
+				margin: 0;
+				min-height: 100%;
+				font-family: 'Segoe UI Variable Text', 'Microsoft YaHei UI', 'PingFang SC', sans-serif;
+				color: var(--text);
+				background:
+					radial-gradient(circle at top left, rgba(216, 111, 36, 0.2), transparent 30%),
+					radial-gradient(circle at top right, rgba(30, 109, 103, 0.18), transparent 28%),
+					linear-gradient(180deg, #f7f4ef 0%, #edf2f1 55%, #e2ebea 100%);
+			}
+
+			body {
+				padding: 24px;
+			}
+
+			body::before,
+			body::after {
+				content: '';
+				position: fixed;
+				inset: auto;
+				pointer-events: none;
+				z-index: 0;
+				filter: blur(0.5px);
+			}
+
+			body::before {
+				width: 280px;
+				height: 280px;
+				right: -80px;
+				top: -60px;
+				border-radius: 50%;
+				background: radial-gradient(circle, rgba(216, 111, 36, 0.22), transparent 70%);
+			}
+
+			body::after {
+				width: 340px;
+				height: 340px;
+				left: -120px;
+				bottom: -140px;
+				border-radius: 50%;
+				background: radial-gradient(circle, rgba(30, 109, 103, 0.18), transparent 72%);
+			}
+
+			.shell {
+				position: relative;
+				z-index: 1;
+				max-width: 1400px;
+				margin: 0 auto;
+				display: grid;
+				gap: 18px;
+			}
+
+			.hero,
+			.panel-card {
+				background: var(--card);
+				backdrop-filter: blur(18px);
+				border: 1px solid rgba(255, 255, 255, 0.5);
+				border-radius: var(--radius);
+				box-shadow: var(--shadow);
+				animation: fade-up 420ms ease both;
+			}
+
+			.hero {
+				padding: 22px 24px;
+				display: grid;
+				grid-template-columns: 1.35fr 1fr;
+				gap: 18px;
+				overflow: hidden;
+				position: relative;
+			}
+
+			.hero::after {
+				content: '';
+				position: absolute;
+				inset: 0;
+				background:
+					linear-gradient(120deg, rgba(216, 111, 36, 0.08), transparent 46%),
+					linear-gradient(240deg, rgba(30, 109, 103, 0.08), transparent 44%);
+				pointer-events: none;
+			}
+
+			.hero-copy,
+			.hero-meta {
+				position: relative;
+				z-index: 1;
+			}
+
+			.eyebrow {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 6px 12px;
+				border-radius: 999px;
+				background: rgba(21, 33, 38, 0.08);
+				color: var(--muted);
+				font-size: 12px;
+				font-weight: 700;
+				letter-spacing: 0.08em;
+				text-transform: uppercase;
+			}
+
+			.hero h1 {
+				margin: 14px 0 10px;
+				font-family: Bahnschrift, 'Segoe UI Variable Display', 'Microsoft YaHei UI', sans-serif;
+				font-size: clamp(28px, 4vw, 42px);
+				line-height: 1.05;
+				letter-spacing: 0.01em;
+			}
+
+			.hero p {
+				margin: 0;
+				color: var(--muted);
+				font-size: 15px;
+				line-height: 1.7;
+				max-width: 52ch;
+			}
+
+			.hero-meta {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 12px;
+				align-content: start;
+			}
+
+			.metric {
+				padding: 16px;
+				border-radius: 20px;
+				background: var(--card-strong);
+				border: 1px solid var(--line);
+			}
+
+			.metric-label {
+				display: block;
+				font-size: 12px;
+				color: var(--muted);
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+			}
+
+			.metric-value {
+				display: block;
+				margin-top: 10px;
+				font-size: 22px;
+				font-weight: 700;
+				line-height: 1.2;
+			}
+
+			.metric-subtitle {
+				display: block;
+				margin-top: 8px;
+				color: var(--muted);
+				font-size: 13px;
+				line-height: 1.5;
+			}
+
+			.banner {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+				padding: 14px 18px;
+				border-radius: 18px;
+				background: rgba(21, 33, 38, 0.06);
+				border: 1px solid rgba(21, 33, 38, 0.08);
+				font-size: 14px;
+			}
+
+			.banner[data-tone='error'] {
+				background: rgba(167, 60, 47, 0.1);
+				border-color: rgba(167, 60, 47, 0.18);
+				color: var(--danger);
+			}
+
+			.banner[data-tone='success'] {
+				background: rgba(30, 109, 103, 0.1);
+				border-color: rgba(30, 109, 103, 0.18);
+				color: var(--teal);
+			}
+
+			.workspace {
+				display: grid;
+				grid-template-columns: minmax(0, 1.5fr) minmax(320px, 0.95fr);
+				gap: 18px;
+			}
+
+			.panel-card {
+				padding: 20px;
+				display: grid;
+				gap: 16px;
+			}
+
+			.panel-card h2 {
+				margin: 0;
+				font-family: Bahnschrift, 'Segoe UI Variable Display', sans-serif;
+				font-size: 22px;
+				line-height: 1.15;
+			}
+
+			.panel-card p {
+				margin: 0;
+				color: var(--muted);
+				line-height: 1.6;
+				font-size: 14px;
+			}
+
+			.section-head {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+			}
+
+			.actions-grid {
+				display: grid;
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			.action-group-stack {
+				display: grid;
+				gap: 14px;
+			}
+
+			.action-section {
+				display: grid;
+				gap: 14px;
+				padding: 16px;
+				border-radius: 22px;
+				background: var(--card-strong);
+				border: 1px solid var(--line);
+			}
+
+			.action-section[data-active='true'] {
+				border-color: rgba(216, 111, 36, 0.28);
+				box-shadow: 0 14px 30px rgba(216, 111, 36, 0.1);
+			}
+
+			.action-section[data-tone='pcb'][data-active='true'] {
+				border-color: rgba(30, 109, 103, 0.26);
+				box-shadow: 0 14px 30px rgba(30, 109, 103, 0.1);
+			}
+
+			.section-badge {
+				display: inline-flex;
+				align-items: center;
+				padding: 6px 10px;
+				border-radius: 999px;
+				font-size: 12px;
+				font-weight: 700;
+				background: rgba(21, 33, 38, 0.06);
+				color: var(--muted);
+			}
+
+			.action-section[data-tone='sch'] .section-badge {
+				background: rgba(216, 111, 36, 0.1);
+				color: var(--accent-deep);
+			}
+
+			.action-section[data-tone='pcb'] .section-badge {
+				background: rgba(30, 109, 103, 0.1);
+				color: var(--teal);
+			}
+
+			.action-section .actions-grid {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			.action-button,
+			.ghost-button,
+			.net-button,
+			.submit-button {
+				border: 0;
+				cursor: pointer;
+				transition:
+					transform 160ms ease,
+					box-shadow 160ms ease,
+					background-color 160ms ease,
+					opacity 160ms ease;
+			}
+
+			.action-button,
+			.submit-button {
+				padding: 16px;
+				border-radius: 18px;
+				background: linear-gradient(135deg, #1c2a31, #223843);
+				color: #fdf8ef;
+				text-align: left;
+				box-shadow: 0 18px 34px rgba(18, 32, 38, 0.18);
+			}
+
+			.action-button[data-style='accent'] {
+				background: linear-gradient(135deg, #b5531b, #dd7d2f);
+			}
+
+			.action-button[data-style='soft'] {
+				background: linear-gradient(135deg, #f1ede5, #fffaf1);
+				color: var(--text);
+				box-shadow: none;
+				border: 1px solid var(--line);
+			}
+
+			.action-button strong {
+				display: block;
+				font-size: 15px;
+				margin-bottom: 6px;
+			}
+
+			.action-button span {
+				display: block;
+				font-size: 13px;
+				line-height: 1.55;
+				color: inherit;
+				opacity: 0.8;
+			}
+
+			.action-button:hover,
+			.submit-button:hover,
+			.ghost-button:hover,
+			.net-button:hover {
+				transform: translateY(-1px);
+			}
+
+			.action-button:disabled,
+			.ghost-button:disabled,
+			.net-button:disabled,
+			.submit-button:disabled {
+				cursor: not-allowed;
+				opacity: 0.45;
+				transform: none;
+				box-shadow: none;
+			}
+
+			.ghost-actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.ghost-button {
+				padding: 10px 14px;
+				border-radius: 999px;
+				background: rgba(21, 33, 38, 0.06);
+				border: 1px solid rgba(21, 33, 38, 0.08);
+				color: var(--text);
+				font-size: 13px;
+				font-weight: 600;
+			}
+
+			.report-stage {
+				display: grid;
+				gap: 14px;
+			}
+
+			.report-meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.pill {
+				display: inline-flex;
+				align-items: center;
+				gap: 8px;
+				padding: 7px 12px;
+				border-radius: 999px;
+				background: var(--accent-soft);
+				color: var(--accent-deep);
+				font-size: 12px;
+				font-weight: 700;
+			}
+
+			.pill[data-tone='teal'] {
+				background: var(--teal-soft);
+				color: var(--teal);
+			}
+
+			.report-viewer {
+				min-height: 320px;
+				padding: 18px;
+				border-radius: 22px;
+				background: linear-gradient(180deg, rgba(21, 33, 38, 0.98), rgba(28, 41, 48, 0.98));
+				color: #eef6f4;
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				display: grid;
+				gap: 14px;
+			}
+
+			.report-viewer h3 {
+				margin: 0;
+				font-size: 22px;
+				font-family: Bahnschrift, 'Segoe UI Variable Display', sans-serif;
+			}
+
+			.report-viewer .meta-line {
+				color: rgba(238, 246, 244, 0.7);
+				font-size: 13px;
+			}
+
+			.report-pre {
+				margin: 0;
+				padding: 16px;
+				border-radius: 18px;
+				background: rgba(255, 255, 255, 0.05);
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				color: inherit;
+				font-family: 'Cascadia Mono', Consolas, monospace;
+				font-size: 12px;
+				line-height: 1.7;
+				white-space: pre-wrap;
+				word-break: break-word;
+				max-height: 360px;
+				overflow: auto;
+			}
+
+			.history-list,
+			.net-list {
+				display: grid;
+				gap: 10px;
+			}
+
+			.history-item,
+			.net-row {
+				display: grid;
+				gap: 8px;
+				padding: 14px 16px;
+				border-radius: 18px;
+				border: 1px solid var(--line);
+				background: var(--card-strong);
+			}
+
+			.history-item button {
+				width: 100%;
+				padding: 0;
+				background: transparent;
+				border: 0;
+				text-align: left;
+				color: inherit;
+				cursor: pointer;
+			}
+
+			.history-item button strong {
+				display: block;
+				font-size: 14px;
+				line-height: 1.5;
+			}
+
+			.history-item button span,
+			.history-item .meta {
+				display: block;
+				font-size: 12px;
+				color: var(--muted);
+				line-height: 1.5;
+			}
+
+			.history-item[data-active='true'] {
+				border-color: rgba(216, 111, 36, 0.28);
+				box-shadow: 0 14px 30px rgba(216, 111, 36, 0.12);
+			}
+
+			.sidebar {
+				display: grid;
+				gap: 18px;
+			}
+
+			.settings-form,
+			.net-tools {
+				display: grid;
+				gap: 14px;
+			}
+
+			.fields {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 12px;
+			}
+
+			label {
+				display: grid;
+				gap: 8px;
+				font-size: 13px;
+				font-weight: 600;
+			}
+
+			.field-note {
+				color: var(--muted);
+				font-size: 12px;
+				font-weight: 400;
+			}
+
+			input,
+			textarea {
+				width: 100%;
+				padding: 12px 14px;
+				border-radius: 14px;
+				border: 1px solid rgba(21, 33, 38, 0.14);
+				background: rgba(255, 255, 255, 0.86);
+				color: var(--text);
+				font-size: 14px;
+				outline: none;
+				font-family: inherit;
+			}
+
+			textarea {
+				min-height: 110px;
+				resize: vertical;
+				line-height: 1.6;
+			}
+
+			input:focus,
+			textarea:focus {
+				border-color: rgba(216, 111, 36, 0.45);
+				box-shadow: 0 0 0 4px rgba(216, 111, 36, 0.12);
+			}
+
+			.form-actions,
+			.net-actions {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 10px;
+			}
+
+			.submit-button {
+				background: linear-gradient(135deg, #1e6d67, #234e5b);
+				padding: 12px 16px;
+				font-size: 14px;
+				font-weight: 700;
+			}
+
+			.net-row {
+				grid-template-columns: minmax(0, 1fr) auto;
+				align-items: center;
+			}
+
+			.net-row strong {
+				font-size: 14px;
+			}
+
+			.net-row span {
+				display: block;
+				color: var(--muted);
+				font-size: 12px;
+				margin-top: 4px;
+			}
+
+			.net-button {
+				padding: 10px 14px;
+				border-radius: 999px;
+				background: rgba(216, 111, 36, 0.1);
+				border: 1px solid rgba(216, 111, 36, 0.18);
+				color: var(--accent-deep);
+				font-size: 12px;
+				font-weight: 700;
+			}
+
+			.ai-actions {
+				display: grid;
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+				gap: 10px;
+			}
+
+			.ai-result-viewer {
+				display: grid;
+				gap: 12px;
+				padding: 16px;
+				border-radius: 22px;
+				background: linear-gradient(180deg, rgba(21, 33, 38, 0.96), rgba(28, 41, 48, 0.96));
+				border: 1px solid rgba(255, 255, 255, 0.06);
+				color: #eef6f4;
+			}
+
+			.ai-result-viewer h3 {
+				margin: 0;
+				font-size: 20px;
+				font-family: Bahnschrift, 'Segoe UI Variable Display', sans-serif;
+			}
+
+			.inline-note {
+				padding: 12px 14px;
+				border-radius: 16px;
+				background: rgba(30, 109, 103, 0.08);
+				border: 1px solid rgba(30, 109, 103, 0.14);
+				color: var(--muted);
+				font-size: 12px;
+				line-height: 1.7;
+			}
+
+			.empty {
+				padding: 16px;
+				border-radius: 18px;
+				border: 1px dashed rgba(21, 33, 38, 0.18);
+				color: var(--muted);
+				background: rgba(255, 255, 255, 0.35);
+				font-size: 13px;
+				line-height: 1.6;
+			}
+
+			@keyframes fade-up {
+				from {
+					opacity: 0;
+					transform: translateY(8px);
+				}
+				to {
+					opacity: 1;
+					transform: translateY(0);
+				}
+			}
+
+			@media (max-width: 1120px) {
+				.hero,
+				.workspace {
+					grid-template-columns: 1fr;
+				}
+			}
+
+			@media (max-width: 840px) {
+				body {
+					padding: 16px;
+				}
+
+				.actions-grid,
+				.fields,
+				.ai-actions {
+					grid-template-columns: 1fr;
+				}
+
+				.hero-meta {
+					grid-template-columns: 1fr;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<div class="shell">
+			<section class="hero">
+				<div class="hero-copy">
+					<div class="eyebrow">Design Copilot</div>
+					<h1>Design Copilot</h1>
+					<p>你的嘉立创EDA辅助助手：集中原理图、PCB、网络工具、报告历史与 AI 分析。</p>
+				</div>
+				<div class="hero-meta">
+					<div class="metric">
+						<span class="metric-label">当前上下文</span>
+						<span class="metric-value" id="metric-context">加载中</span>
+						<span class="metric-subtitle" id="metric-document">正在读取当前文档</span>
+					</div>
+					<div class="metric">
+						<span class="metric-label">插件版本</span>
+						<span class="metric-value" id="metric-version">-</span>
+						<span class="metric-subtitle">GUI 工作台与报告联动</span>
+					</div>
+					<div class="metric">
+						<span class="metric-label">报告历史</span>
+						<span class="metric-value" id="metric-history">0</span>
+						<span class="metric-subtitle">保留最近 8 次分析结果</span>
+					</div>
+					<div class="metric">
+						<span class="metric-label">网络热点</span>
+						<span class="metric-value" id="metric-nets">-</span>
+						<span class="metric-subtitle">PCB 模式下展示当前 Top 热网</span>
+					</div>
+				</div>
+			</section>
+
+			<div class="banner" id="banner" data-tone="neutral">
+				<span id="banner-text">工作台已加载，正在请求插件状态。</span>
+				<button class="ghost-button" id="refresh-button" type="button">刷新状态</button>
+			</div>
+
+			<div class="workspace">
+				<div class="panel-card">
+					<div class="section-head">
+						<div>
+							<h2>功能分区</h2>
+							<p>左侧先按原理图 / PCB 两个方向组织动作，再保留少量跨场景通用操作。</p>
+						</div>
+					</div>
+					<div class="action-group-stack">
+						<section class="action-section" data-tone="sch" id="sch-section">
+							<div class="section-head">
+								<div>
+									<h2>原理图功能</h2>
+									<p>围绕页级检查、元件准备度、选区快照和原理图 DRC。</p>
+								</div>
+								<span class="section-badge" id="sch-section-badge">原理图上下文</span>
+							</div>
+							<div class="actions-grid">
+								<button class="action-button" data-action="integratedCheck" data-scope="sch" data-style="accent" type="button">
+									<strong>原理图综合检查</strong>
+									<span>把原理图体检与 DRC 摘要合并成一份报告。</span>
+								</button>
+								<button class="action-button" data-action="quickAudit" data-scope="sch" type="button">
+									<strong>原理图快速体检</strong>
+									<span>统计器件、导线、总线、位号和 BOM 准备度。</span>
+								</button>
+								<button class="action-button" data-action="runDrc" data-scope="sch" type="button">
+									<strong>原理图快速 DRC</strong>
+									<span>直接触发当前原理图 DRC，并写入最近报告。</span>
+								</button>
+								<button class="action-button" data-action="selectionSnapshot" data-scope="sch" data-style="soft" type="button">
+									<strong>原理图选区快照</strong>
+									<span>提取当前选中图元、网络和位号预览。</span>
+								</button>
+							</div>
+						</section>
+
+						<section class="action-section" data-tone="pcb" id="pcb-section">
+							<div class="section-head">
+								<div>
+									<h2>PCB 功能</h2>
+									<p>围绕板级统计、热点网络、PCB DRC 和网络定位排查。</p>
+								</div>
+								<span class="section-badge" id="pcb-section-badge">PCB 上下文</span>
+							</div>
+							<div class="actions-grid">
+								<button class="action-button" data-action="integratedCheck" data-scope="pcb" data-style="accent" type="button">
+									<strong>PCB 综合检查</strong>
+									<span>把 PCB 体检与 DRC 摘要合并成一份报告。</span>
+								</button>
+								<button class="action-button" data-action="quickAudit" data-scope="pcb" type="button">
+									<strong>PCB 快速体检</strong>
+									<span>统计器件、焊盘、过孔、走线和热点网络。</span>
+								</button>
+								<button class="action-button" data-action="runDrc" data-scope="pcb" type="button">
+									<strong>PCB 快速 DRC</strong>
+									<span>直接触发当前 PCB DRC，并记录规则与问题数。</span>
+								</button>
+								<button class="action-button" data-action="selectionSnapshot" data-scope="pcb" data-style="soft" type="button">
+									<strong>PCB 选区快照</strong>
+									<span>整理当前选区、网络和位号信息，便于局部排查。</span>
+								</button>
+								<button class="action-button" data-action="highlightTopNet" data-scope="pcb" data-style="soft" type="button">
+									<strong>高亮最密网络</strong>
+									<span>自动抓取当前热点网络并在 PCB 中高亮。</span>
+								</button>
+							</div>
+						</section>
+					</div>
+
+					<div class="section-head">
+						<div>
+							<h2>通用操作</h2>
+							<p>这些动作不区分原理图或 PCB，上下文允许时都可直接使用。</p>
+						</div>
+					</div>
+					<div class="ghost-actions">
+						<button class="ghost-button" data-action="saveDesign" type="button">保存当前设计</button>
+						<button class="ghost-button" data-action="showLatestReportDialog" type="button">弹出最近报告</button>
+						<button class="ghost-button" data-action="showHistoryDialog" type="button">弹出报告历史</button>
+					</div>
+
+					<div class="report-stage">
+						<div class="section-head">
+							<div>
+								<h2>报告舞台</h2>
+								<p>最近报告会自动同步到这里，也可以在历史列表中切换查看。</p>
+							</div>
+							<div class="report-meta">
+								<span class="pill" id="report-context-pill">暂无报告</span>
+								<span class="pill" data-tone="teal" id="report-time-pill">等待生成</span>
+							</div>
+						</div>
+						<div class="report-viewer">
+							<div>
+								<h3 id="report-title">尚未生成报告</h3>
+								<div class="meta-line" id="report-subtitle">执行一次体检、DRC 或选区快照后，这里会展示完整结果。</div>
+							</div>
+							<pre class="report-pre" id="report-content">Design Copilot 将在这里显示报告内容。</pre>
+						</div>
+					</div>
+
+					<div class="section-head">
+						<div>
+							<h2>历史回看</h2>
+							<p>单击任一条历史记录即可在上方预览其完整文本。</p>
+						</div>
+					</div>
+					<div class="history-list" id="history-list"></div>
+				</div>
+
+				<div class="sidebar">
+					<section class="panel-card">
+						<div class="section-head">
+							<div>
+								<h2>工作台参数</h2>
+								<p>直接在 GUI 中维护阈值，不再依赖单独菜单或 JSON 输入框。</p>
+							</div>
+						</div>
+						<form class="settings-form" id="settings-form">
+							<div class="fields">
+								<label>
+									<span>Top 热网数量</span>
+									<input id="topNetCount" min="1" step="1" type="number" />
+									<span class="field-note">控制热点网络排行和面板展示数量。</span>
+								</label>
+								<label>
+									<span>热网阈值</span>
+									<input id="denseNetThreshold" min="1" step="1" type="number" />
+									<span class="field-note">达到该连接点数后才算高密网络。</span>
+								</label>
+								<label>
+									<span>选区预览数</span>
+									<input id="selectionPreviewLimit" min="1" step="1" type="number" />
+									<span class="field-note">控制选区快照中位号和类型预览长度。</span>
+								</label>
+								<label>
+									<span>过孔风险阈值</span>
+									<input id="viaRiskThreshold" min="1" step="1" type="number" />
+									<span class="field-note">PCB 体检中用于判断过孔密度提示。</span>
+								</label>
+							</div>
+							<div class="form-actions">
+								<button class="submit-button" type="submit">保存参数</button>
+								<button class="ghost-button" id="reset-settings" type="button">恢复默认值</button>
+							</div>
+						</form>
+					</section>
+
+					<section class="panel-card">
+						<div class="section-head">
+							<div>
+								<h2>AI 助手</h2>
+								<p>填写自定义模型接口后，可基于最近报告生成总结、整改建议、复核清单和自定义问答。</p>
+							</div>
+							<span class="section-badge" id="ai-ready-badge">等待配置</span>
+						</div>
+						<div class="inline-note">请在嘉立创 EDA 的扩展管理器中为本插件开启“外部交互”权限，并确认目标接口允许 CORS。</div>
+						<form class="settings-form" id="ai-config-form">
+							<div class="fields">
+								<label>
+									<span>接口地址</span>
+									<input id="aiEndpoint" placeholder="https://your-api.example.com/v1/chat/completions" type="text" />
+									<span class="field-note">支持自定义兼容接口地址。</span>
+								</label>
+								<label>
+									<span>模型名</span>
+									<input id="aiModel" placeholder="gpt-4.1-mini / qwen-plus / deepseek-chat" type="text" />
+									<span class="field-note">按你的接口实际支持的模型名填写。</span>
+								</label>
+								<label>
+									<span>API Key</span>
+									<input id="aiApiKey" placeholder="sk-..." type="password" />
+									<span class="field-note">默认会拼成 `Authorization: Bearer ...`。</span>
+								</label>
+								<label>
+									<span>Temperature</span>
+									<input id="aiTemperature" max="2" min="0" step="0.1" type="number" />
+									<span class="field-note">建议 0.2 到 0.5，结果更稳定。</span>
+								</label>
+							</div>
+							<label>
+								<span>额外请求头 JSON</span>
+								<textarea id="aiHeadersText" placeholder='{"X-Provider":"demo"}'></textarea>
+								<span class="field-note">留空则只发送 `Content-Type` 和可选的 `Authorization`。</span>
+							</label>
+							<label>
+								<span>系统提示词</span>
+								<textarea id="aiSystemPrompt" placeholder="告诉模型它应该如何理解 EDA 语境与输出风格。"></textarea>
+								<span class="field-note">用于约束输出语气、结构和回答边界。</span>
+							</label>
+							<div class="form-actions">
+								<button class="submit-button" type="submit">保存 AI 配置</button>
+							</div>
+						</form>
+						<div class="ai-actions">
+							<button class="ghost-button" data-ai-task="summarizeLatestReport" type="button">总结最近报告</button>
+							<button class="ghost-button" data-ai-task="suggestFixes" type="button">生成整改建议</button>
+							<button class="ghost-button" data-ai-task="buildChecklist" type="button">生成复核清单</button>
+							<button class="ghost-button" id="clear-ai-result" type="button">清空 AI 结果</button>
+						</div>
+						<label>
+							<span>自定义提问</span>
+							<textarea id="aiCustomPrompt" placeholder="例如：请结合最近报告，给出下一轮优先修复的 5 个动作。"></textarea>
+							<span class="field-note">AI 会连同当前上下文、阈值和最近报告一起发送。</span>
+						</label>
+						<div class="form-actions">
+							<button class="submit-button" id="ai-custom-button" type="button">发送给 AI</button>
+						</div>
+						<div class="ai-result-viewer">
+							<div>
+								<h3 id="ai-result-title">尚未生成 AI 结果</h3>
+								<div class="meta-line" id="ai-result-subtitle">保存接口配置并生成一份报告后，可在这里查看 AI 输出。</div>
+							</div>
+							<div class="report-meta">
+								<span class="pill" id="ai-result-model">AI 未就绪</span>
+								<span class="pill" data-tone="teal" id="ai-result-time">等待调用</span>
+							</div>
+							<pre class="report-pre" id="ai-result-content">Design Copilot 将在这里显示 AI 总结、整改建议或自定义问答结果。</pre>
+						</div>
+					</section>
+
+					<section class="panel-card">
+						<div class="section-head">
+							<div>
+								<h2>PCB 网络工具</h2>
+								<p>支持按网络名聚焦，也支持直接点选当前热点网络。</p>
+							</div>
+						</div>
+						<div class="net-tools">
+							<div class="net-actions">
+								<input id="focus-net-input" maxlength="80" placeholder="输入网络名，例如 GND / 3V3 / USB_D+" type="text" />
+								<button class="submit-button" id="focus-net-button" type="button">按网络名聚焦</button>
+							</div>
+							<div class="net-list" id="net-list"></div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			(() => {
+				const PANEL_RPC_TOPIC = 'designPulse.panel.rpc';
+				const PANEL_EVENT_TOPIC = 'designPulse.panel.events';
+				const state = {
+					apiReady: false,
+					busy: false,
+					panel: null,
+					retryTimer: null,
+					retryCount: 0,
+					selectedReportKey: null,
+					subscriptionsReady: false,
+				};
+
+				const refs = {
+					banner: document.getElementById('banner'),
+					bannerText: document.getElementById('banner-text'),
+					context: document.getElementById('metric-context'),
+					document: document.getElementById('metric-document'),
+					version: document.getElementById('metric-version'),
+					history: document.getElementById('metric-history'),
+					nets: document.getElementById('metric-nets'),
+					reportContext: document.getElementById('report-context-pill'),
+					reportTime: document.getElementById('report-time-pill'),
+					reportTitle: document.getElementById('report-title'),
+					reportSubtitle: document.getElementById('report-subtitle'),
+					reportContent: document.getElementById('report-content'),
+					historyList: document.getElementById('history-list'),
+					netList: document.getElementById('net-list'),
+					refreshButton: document.getElementById('refresh-button'),
+					settingsForm: document.getElementById('settings-form'),
+					resetSettingsButton: document.getElementById('reset-settings'),
+					pcbSection: document.getElementById('pcb-section'),
+					pcbSectionBadge: document.getElementById('pcb-section-badge'),
+					schSection: document.getElementById('sch-section'),
+					schSectionBadge: document.getElementById('sch-section-badge'),
+					focusNetInput: document.getElementById('focus-net-input'),
+					focusNetButton: document.getElementById('focus-net-button'),
+					topNetCount: document.getElementById('topNetCount'),
+					denseNetThreshold: document.getElementById('denseNetThreshold'),
+					selectionPreviewLimit: document.getElementById('selectionPreviewLimit'),
+					viaRiskThreshold: document.getElementById('viaRiskThreshold'),
+					aiConfigForm: document.getElementById('ai-config-form'),
+					aiReadyBadge: document.getElementById('ai-ready-badge'),
+					aiEndpoint: document.getElementById('aiEndpoint'),
+					aiModel: document.getElementById('aiModel'),
+					aiApiKey: document.getElementById('aiApiKey'),
+					aiTemperature: document.getElementById('aiTemperature'),
+					aiHeadersText: document.getElementById('aiHeadersText'),
+					aiSystemPrompt: document.getElementById('aiSystemPrompt'),
+					aiCustomPrompt: document.getElementById('aiCustomPrompt'),
+					aiCustomButton: document.getElementById('ai-custom-button'),
+					clearAiResultButton: document.getElementById('clear-ai-result'),
+					aiResultTitle: document.getElementById('ai-result-title'),
+					aiResultSubtitle: document.getElementById('ai-result-subtitle'),
+					aiResultModel: document.getElementById('ai-result-model'),
+					aiResultTime: document.getElementById('ai-result-time'),
+					aiResultContent: document.getElementById('ai-result-content'),
+				};
+
+				const actionButtons = Array.from(document.querySelectorAll('[data-action]'));
+				const aiTaskButtons = Array.from(document.querySelectorAll('[data-ai-task]'));
+
+				function getEdaApi() {
+					return window.eda && window.eda.sys_MessageBus ? window.eda : null;
+				}
+
+				function scheduleRetry() {
+					if (state.retryTimer || state.retryCount >= 12) {
+						return;
+					}
+
+					state.retryTimer = window.setTimeout(() => {
+						state.retryTimer = null;
+						state.retryCount += 1;
+						void syncState(true);
+					}, 400);
+				}
+
+				function ensureSubscriptions() {
+					try {
+						const api = getEdaApi();
+						if (!api || state.subscriptionsReady) {
+							return;
+						}
+
+						api.sys_MessageBus.subscribePublic(PANEL_EVENT_TOPIC, () => {
+							void syncState(true);
+						});
+						state.subscriptionsReady = true;
+					} catch (error) {
+						setBanner(`自动同步未启用：${String(error)}`, 'error');
+					}
+				}
+
+				function setBusy(nextBusy) {
+					state.busy = nextBusy;
+					for (const button of actionButtons) {
+						button.disabled = nextBusy;
+					}
+					for (const button of aiTaskButtons) {
+						button.disabled = nextBusy;
+					}
+					refs.refreshButton.disabled = nextBusy;
+					refs.focusNetButton.disabled = nextBusy;
+					refs.resetSettingsButton.disabled = nextBusy;
+					for (const input of refs.settingsForm.querySelectorAll('input')) {
+						input.disabled = nextBusy;
+					}
+					for (const element of refs.aiConfigForm.querySelectorAll('input, textarea')) {
+						element.disabled = nextBusy;
+					}
+					refs.focusNetInput.disabled = nextBusy;
+					refs.aiCustomPrompt.disabled = nextBusy;
+					refs.aiCustomButton.disabled = nextBusy;
+					refs.clearAiResultButton.disabled = nextBusy;
+					for (const button of document.querySelectorAll('.net-button')) {
+						button.disabled = nextBusy;
+					}
+				}
+
+				function setBanner(message, tone = 'neutral') {
+					refs.banner.dataset.tone = tone;
+					refs.bannerText.textContent = message;
+				}
+
+				function reportKey(report) {
+					return report ? `${report.generatedAt}|${report.title}` : '';
+				}
+
+				function findSelectedReport(panel) {
+					if (!panel) {
+						return null;
+					}
+
+					const history = Array.isArray(panel.history) ? panel.history : [];
+					const fallback = panel.latestReport || history[0] || null;
+					if (!fallback) {
+						return null;
+					}
+
+					if (!state.selectedReportKey) {
+						state.selectedReportKey = reportKey(fallback);
+						return fallback;
+					}
+
+					return (
+						history.find((item) => reportKey(item) === state.selectedReportKey) ||
+						(panel.latestReport && reportKey(panel.latestReport) === state.selectedReportKey ? panel.latestReport : fallback)
+					);
+				}
+
+				function renderHistory(panel) {
+					const history = Array.isArray(panel.history) ? panel.history : [];
+					if (!history.length) {
+						refs.historyList.innerHTML =
+							'<div class="empty">还没有报告历史。执行一次体检、DRC 或选区快照后，这里会按时间倒序保留最近 8 条。</div>';
+						return;
+					}
+
+					refs.historyList.innerHTML = '';
+					for (const report of history) {
+						const item = document.createElement('article');
+						item.className = 'history-item';
+						item.dataset.active = String(reportKey(report) === state.selectedReportKey);
+
+						const button = document.createElement('button');
+						button.type = 'button';
+						button.innerHTML = `<strong>${report.title}</strong><span>${report.generatedAt}</span><span>[${report.context}] ${report.lines[0] || '点击查看完整内容'}</span>`;
+						button.addEventListener('click', () => {
+							state.selectedReportKey = reportKey(report);
+							render(panel);
+						});
+
+						item.appendChild(button);
+						refs.historyList.appendChild(item);
+					}
+				}
+
+				function renderNets(panel) {
+					const nets = Array.isArray(panel.denseNets) ? panel.denseNets : [];
+					if (!panel.canInspectNets) {
+						refs.netList.innerHTML =
+							'<div class="empty">当前不在 PCB 上下文。切换到 PCB 后，可直接在这里高亮热点网络或按网络名聚焦。</div>';
+						return;
+					}
+
+					if (!nets.length) {
+						refs.netList.innerHTML =
+							'<div class="empty">当前没有达到阈值的热点网络。可以先降低热网阈值，或在 PCB 中生成更多连接后再查看。</div>';
+						return;
+					}
+
+					refs.netList.innerHTML = '';
+					for (const net of nets) {
+						const row = document.createElement('div');
+						row.className = 'net-row';
+						row.innerHTML = `<div><strong>${net.name}</strong><span>连接点 ${net.count}</span></div>`;
+
+						const button = document.createElement('button');
+						button.type = 'button';
+						button.className = 'net-button';
+						button.textContent = '高亮';
+						button.disabled = state.busy;
+						button.addEventListener('click', () =>
+							runRpc({ type: 'highlightDenseNet', netName: net.name }, `正在高亮网络 ${net.name}...`),
+						);
+
+						row.appendChild(button);
+						refs.netList.appendChild(row);
+					}
+				}
+
+				function renderAi(panel) {
+					const ai = panel.ai || { config: {}, ready: false };
+					const config = ai.config || {};
+					const lastResult = ai.lastResult || null;
+
+					refs.aiEndpoint.value = config.endpoint || '';
+					refs.aiModel.value = config.model || '';
+					refs.aiApiKey.value = config.apiKey || '';
+					refs.aiTemperature.value = typeof config.temperature === 'number' ? String(config.temperature) : '0.3';
+					refs.aiHeadersText.value = config.headersText || '';
+					refs.aiSystemPrompt.value = config.systemPrompt || '';
+					refs.aiReadyBadge.textContent = ai.ready ? 'AI 接口已就绪' : '等待配置';
+
+					for (const button of aiTaskButtons) {
+						button.disabled = state.busy || !ai.ready;
+					}
+					refs.aiCustomButton.disabled = state.busy || !ai.ready;
+					refs.clearAiResultButton.disabled = state.busy || !lastResult;
+
+					if (!lastResult) {
+						refs.aiResultTitle.textContent = '尚未生成 AI 结果';
+						refs.aiResultSubtitle.textContent = ai.ready
+							? '可以直接基于最近报告生成总结、整改建议或复核清单。'
+							: '先填写接口地址和模型名，再保存 AI 配置。';
+						refs.aiResultModel.textContent = ai.ready ? `模型：${config.model || '-'}` : 'AI 未就绪';
+						refs.aiResultTime.textContent = '等待调用';
+						refs.aiResultContent.textContent = 'Design Copilot 将在这里显示 AI 总结、整改建议或自定义问答结果。';
+						return;
+					}
+
+					refs.aiResultTitle.textContent = lastResult.title || 'AI 结果';
+					refs.aiResultSubtitle.textContent = `${lastResult.endpoint || '未知接口'} · ${lastResult.model || '未知模型'}`;
+					refs.aiResultModel.textContent = lastResult.model ? `模型：${lastResult.model}` : '模型未知';
+					refs.aiResultTime.textContent = lastResult.generatedAt || '未知时间';
+					refs.aiResultContent.textContent = lastResult.content || 'AI 未返回文本内容。';
+				}
+
+				function renderReport(panel) {
+					const selectedReport = findSelectedReport(panel);
+					if (!selectedReport) {
+						refs.reportContext.textContent = '暂无报告';
+						refs.reportTime.textContent = '等待生成';
+						refs.reportTitle.textContent = '尚未生成报告';
+						refs.reportSubtitle.textContent = '执行一次体检、DRC 或选区快照后，这里会展示完整结果。';
+						refs.reportContent.textContent = 'Design Copilot 将在这里显示报告内容。';
+						return;
+					}
+
+					refs.reportContext.textContent = `${selectedReport.context.toUpperCase()} 报告`;
+					refs.reportTime.textContent = selectedReport.generatedAt;
+					refs.reportTitle.textContent = selectedReport.title;
+					refs.reportSubtitle.textContent = selectedReport.lines[0] || 'Design Copilot 报告';
+					refs.reportContent.textContent = [
+						selectedReport.title,
+						`生成时间：${selectedReport.generatedAt}`,
+						'',
+						...selectedReport.lines,
+					].join('\n');
+				}
+
+				function render(panel) {
+					state.panel = panel;
+					refs.context.textContent = panel.contextLabel || '未知';
+					refs.document.textContent = `${panel.documentName || '未知文档'} · ${panel.documentSubtitle || ''}`;
+					refs.version.textContent = panel.version || '-';
+					refs.history.textContent = String((panel.history || []).length);
+					refs.nets.textContent = panel.canInspectNets ? String((panel.denseNets || []).length) : '仅 PCB';
+
+					refs.topNetCount.value = panel.settings.topNetCount;
+					refs.denseNetThreshold.value = panel.settings.denseNetThreshold;
+					refs.selectionPreviewLimit.value = panel.settings.selectionPreviewLimit;
+					refs.viaRiskThreshold.value = panel.settings.viaRiskThreshold;
+
+					refs.schSection.dataset.active = String(panel.context === 'sch');
+					refs.pcbSection.dataset.active = String(panel.context === 'pcb');
+					refs.schSectionBadge.textContent = panel.context === 'sch' ? '当前正在原理图页' : '切换到原理图页可用';
+					refs.pcbSectionBadge.textContent = panel.context === 'pcb' ? '当前正在 PCB 页' : '切换到 PCB 页可用';
+
+					for (const button of actionButtons) {
+						const action = button.dataset.action;
+						const scope = button.dataset.scope;
+						const scopeReady = scope === 'sch' ? panel.context === 'sch' : scope === 'pcb' ? panel.context === 'pcb' : true;
+						const needsPcb = action === 'highlightTopNet';
+						const needsDocument =
+							action === 'integratedCheck' || action === 'quickAudit' || action === 'runDrc' || action === 'selectionSnapshot';
+						const enabled = scopeReady && (needsPcb ? panel.canInspectNets : needsDocument ? panel.canRunAudit : true);
+						button.disabled = state.busy || !enabled;
+					}
+
+					refs.focusNetButton.disabled = state.busy || !panel.canInspectNets;
+					refs.focusNetInput.disabled = state.busy || !panel.canInspectNets;
+
+					renderReport(panel);
+					renderHistory(panel);
+					renderNets(panel);
+					renderAi(panel);
+				}
+
+				async function rpc(request) {
+					const api = getEdaApi();
+					if (!api) {
+						throw new Error('当前环境尚未注入嘉立创 EDA 扩展 API，工作台会自动重试连接。');
+					}
+					return api.sys_MessageBus.rpcCallPublic(PANEL_RPC_TOPIC, request, 20000);
+				}
+
+				async function syncState(silent = false) {
+					try {
+						if (!silent) {
+							setBusy(true);
+						}
+						const response = await rpc({ type: 'getState' });
+						state.apiReady = true;
+						ensureSubscriptions();
+						if (response && response.state) {
+							render(response.state);
+						}
+						if (!silent) {
+							setBanner(response.message || '工作台状态已刷新', 'success');
+						}
+					} catch (error) {
+						const message = String(error);
+						setBanner(message, state.retryCount < 12 ? 'neutral' : 'error');
+						if (message.includes('尚未注入')) {
+							scheduleRetry();
+						}
+					} finally {
+						setBusy(false);
+					}
+				}
+
+				async function runRpc(request, busyMessage) {
+					try {
+						setBusy(true);
+						setBanner(busyMessage, 'neutral');
+						const response = await rpc(request);
+						if (response && response.state) {
+							render(response.state);
+						}
+						setBanner(response.message || '操作已完成', response && response.ok ? 'success' : 'error');
+					} catch (error) {
+						setBanner(String(error), 'error');
+					} finally {
+						setBusy(false);
+					}
+				}
+
+				function parseSettings() {
+					return {
+						topNetCount: Number(refs.topNetCount.value),
+						denseNetThreshold: Number(refs.denseNetThreshold.value),
+						selectionPreviewLimit: Number(refs.selectionPreviewLimit.value),
+						viaRiskThreshold: Number(refs.viaRiskThreshold.value),
+					};
+				}
+
+				function parseAiConfig() {
+					return {
+						endpoint: refs.aiEndpoint.value.trim(),
+						model: refs.aiModel.value.trim(),
+						apiKey: refs.aiApiKey.value.trim(),
+						temperature: Number(refs.aiTemperature.value),
+						headersText: refs.aiHeadersText.value.trim(),
+						systemPrompt: refs.aiSystemPrompt.value.trim(),
+					};
+				}
+
+				refs.refreshButton.addEventListener('click', () => {
+					void syncState();
+				});
+
+				for (const button of actionButtons) {
+					button.addEventListener('click', () => {
+						void runRpc({ type: 'runAction', action: button.dataset.action }, `正在执行 ${button.textContent.trim()}...`);
+					});
+				}
+
+				refs.settingsForm.addEventListener('submit', (event) => {
+					event.preventDefault();
+					void runRpc({ type: 'updateSettings', settings: parseSettings() }, '正在保存工作台参数...');
+				});
+
+				refs.aiConfigForm.addEventListener('submit', (event) => {
+					event.preventDefault();
+					void runRpc({ type: 'updateAiConfig', config: parseAiConfig() }, '正在保存 AI 接口配置...');
+				});
+
+				refs.resetSettingsButton.addEventListener('click', () => {
+					void runRpc({ type: 'resetSettings' }, '正在恢复默认设置...');
+				});
+
+				refs.focusNetButton.addEventListener('click', () => {
+					const netName = refs.focusNetInput.value.trim();
+					void runRpc({ type: 'focusNet', netName }, `正在定位网络 ${netName || '...'}`);
+				});
+
+				for (const button of aiTaskButtons) {
+					button.addEventListener('click', () => {
+						const task = button.dataset.aiTask;
+						void runRpc({ type: 'runAiAgent', task }, `正在执行 ${button.textContent.trim()}...`);
+					});
+				}
+
+				refs.aiCustomButton.addEventListener('click', () => {
+					void runRpc({ type: 'runAiAgent', task: 'customPrompt', prompt: refs.aiCustomPrompt.value.trim() }, '正在发送自定义问题给 AI...');
+				});
+
+				refs.clearAiResultButton.addEventListener('click', () => {
+					void runRpc({ type: 'clearAiResult' }, '正在清空 AI 结果...');
+				});
+
+				ensureSubscriptions();
+				void syncState();
+			})();
+		</script>
+	</body>
+</html>
