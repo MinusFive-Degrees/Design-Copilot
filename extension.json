@@ -1,73 +1,68 @@
 {
-  "name": "jlc-design-copilot",
-  "uuid": "0dffb326676049139e6b3208a7d2d628",
-  "displayName": "Design Copilot",
-  "description": "面向嘉立创EDA的原理图、PCB与AI协同检查助手",
-  "version": "1.0.2",
-  "publisher": "JLCEDA Plugin Lab",
-  "engines": {
-    "eda": "^2.3.0"
-  },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "extension-store",
-    "url": ""
-  },
-  "categories": "Productivity",
-  "keywords": [
-    "EDA",
-    "PCB",
-    "Schematic",
-    "Audit",
-    "AI"
-  ],
-  "images": {
-    "logo": "./images/logo.png"
-  },
-  "homepage": "https://pro.lceda.cn",
-  "bugs": "https://lceda.cn/page/feedback?originPage=other",
-  "activationEvents": {},
-  "entry": "./dist/index",
-  "dependentExtensions": {},
-  "headerMenus": {
-    "home": [
-      {
-        "id": "Design Copilot",
-        "title": "Design Copilot",
-        "menuItems": [
-          {
-            "id": "Home Workbench",
-            "title": "打开工作台",
-            "registerFn": "openControlPanel"
-          }
-        ]
-      }
-    ],
-    "sch": [
-      {
-        "id": "Design Copilot",
-        "title": "Design Copilot",
-        "menuItems": [
-          {
-            "id": "Schematic Workbench",
-            "title": "打开工作台",
-            "registerFn": "openControlPanel"
-          }
-        ]
-      }
-    ],
-    "pcb": [
-      {
-        "id": "Design Copilot",
-        "title": "Design Copilot",
-        "menuItems": [
-          {
-            "id": "PCB Workbench",
-            "title": "打开工作台",
-            "registerFn": "openControlPanel"
-          }
-        ]
-      }
-    ]
-  }
+	"name": "jlc-design-copilot",
+	"uuid": "0dffb326676049139e6b3208a7d2d628",
+	"displayName": "Design Copilot",
+	"description": "面向嘉立创EDA的原理图、PCB与AI协同检查助手",
+	"version": "1.0.3",
+	"publisher": "JLCEDA Plugin Lab",
+	"engines": {
+		"eda": "^2.3.0"
+	},
+	"license": "Apache-2.0",
+	"repository": {
+		"type": "extension-store",
+		"url": ""
+	},
+	"categories": "Productivity",
+	"keywords": ["EDA", "PCB", "Schematic", "Audit", "AI"],
+	"images": {
+		"logo": "./images/logo.png"
+	},
+	"homepage": "https://github.com/MinusFive-Degrees/Design-Copilot",
+	"bugs": "https://github.com/MinusFive-Degrees/Design-Copilot/issues",
+	"activationEvents": {},
+	"entry": "./dist/index",
+	"dependentExtensions": {},
+	"headerMenus": {
+		"home": [
+			{
+				"id": "Design Copilot",
+				"title": "Design Copilot",
+				"menuItems": [
+					{
+						"id": "Home Workbench",
+						"title": "打开工作台",
+						"registerFn": "openControlPanel"
+					}
+				]
+			}
+		],
+		"sch": [
+			{
+				"id": "Design Copilot",
+				"title": "Design Copilot",
+				"menuItems": [
+					{
+						"id": "Schematic Workbench",
+						"title": "打开工作台",
+						"registerFn": "openControlPanel"
+					}
+				]
+			}
+		],
+		"pcb": [
+			{
+				"id": "Design Copilot",
+				"title": "Design Copilot",
+				"menuItems": [
+					{
+						"id": "PCB Workbench",
+						"title": "打开工作台",
+						"registerFn": "openControlPanel"
+					}
+				]
+			}
+		]
+	}
 }
+
