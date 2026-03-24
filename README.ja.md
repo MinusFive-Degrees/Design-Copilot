@@ -31,22 +31,22 @@ Design Copilot は、嘉立創 EDA 向けの統合ワークベンチ拡張です
 ## 画面イメージ
 
 ワークベンチ全体：
-![ワークベンチ全体](image/README/1774174167200.png)
+![ワークベンチ全体](image/README/image1.png)
 
 回路図レビュー領域：
-![回路図レビュー領域](image/README/1774174272561.png)
+![回路図レビュー領域](image/README/image2.png)
 
 PCB レビュー領域：
-![PCB レビュー領域](image/README/1774174409715.png)
+![PCB レビュー領域](image/README/image3.png)
 
 レポート表示と履歴：
-![レポート表示と履歴](image/README/1774174479401.png)
+![レポート表示と履歴](image/README/image4.png)
 
 設定と AI 領域：
-![設定と AI 領域](image/README/1774174573274.png)
+![設定と AI 領域](image/README/image5.png)
 
 AI 分析結果の例：
-![AI 分析結果の例](image/README/1774174599341.png)
+![AI 分析結果の例](image/README/image6.png)
 
 ## AI 利用メモ
 
@@ -68,3 +68,4 @@ npm run build
 
 - 嘉立創 EDA 拡張 API ガイド: <https://prodocs.lceda.cn/cn/api/guide/>
 - API 呼び出しガイド: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+

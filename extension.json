@@ -1,9 +1,9 @@
 {
-	"name": "jlc-design-copilot",
+	"name": "design-copilot",
 	"uuid": "0dffb326676049139e6b3208a7d2d628",
 	"displayName": "Design Copilot",
 	"description": "面向嘉立创EDA的原理图、PCB与AI协同检查助手",
-	"version": "1.0.6",
+	"version": "1.0.8",
 	"publisher": "JLCEDA Plugin Lab",
 	"engines": {
 		"eda": "^2.3.0"
@@ -65,6 +65,4 @@
 		]
 	}
 }
-
-
 

@@ -31,22 +31,22 @@ This project does not replace the EDA editor itself. It adds a faster inspection
 ## Screenshots
 
 Workbench overview:
-![Workbench overview](image/README/1774174167200.png)
+![Workbench overview](image/README/image1.png)
 
 Schematic review area:
-![Schematic review area](image/README/1774174272561.png)
+![Schematic review area](image/README/image2.png)
 
 PCB review area:
-![PCB review area](image/README/1774174409715.png)
+![PCB review area](image/README/image3.png)
 
 Report stage and history:
-![Report stage and history](image/README/1774174479401.png)
+![Report stage and history](image/README/image4.png)
 
 Settings and AI area:
-![Settings and AI area](image/README/1774174573274.png)
+![Settings and AI area](image/README/image5.png)
 
 AI analysis example:
-![AI analysis example](image/README/1774174599341.png)
+![AI analysis example](image/README/image6.png)
 
 ## AI Notes
 
@@ -68,3 +68,4 @@ Packaged `.eext` files are written to `build/dist/`.
 
 - JLCEDA Pro API Guide: <https://prodocs.lceda.cn/cn/api/guide/>
 - API Invocation Guide: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+

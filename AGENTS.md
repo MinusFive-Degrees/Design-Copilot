@@ -18,4 +18,5 @@ There is no standalone test suite in this repository. Validation is build-based:
 
 ## Commit & Pull Request Guidelines
 
-Follow the existing Conventional Commit style, for example `feat: add pcb dense net analysis (v0.0.3)` or `docs: refresh readme for design pulse (v0.1.6)`. Every functional change should update `CHANGELOG.md`, bump versions consistently, and keep the corresponding `.eext` artifact. Pull requests should describe user-visible behavior changes, list affected menus or reports, and mention the packaged version produced in `build/dist/`.
+Follow the existing Conventional Commit style, for example `feat: add pcb dense net analysis (v0.0.3)` or `docs: refresh readme for Design Copilot (v1.0.5)`. Every functional change should update `CHANGELOG.md`, bump versions consistently, and keep the corresponding `.eext` artifact. Pull requests should describe user-visible behavior changes, list affected menus or reports, and mention the packaged version produced in `build/dist/`.
+

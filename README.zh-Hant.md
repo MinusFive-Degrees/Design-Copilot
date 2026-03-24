@@ -31,22 +31,22 @@ Design Copilot 是面向嘉立創 EDA 的統一工作台擴展，將原理圖檢
 ## 介面預覽
 
 工作台總覽：
-![工作台總覽](image/README/1774174167200.png)
+![工作台總覽](image/README/image1.png)
 
 原理圖檢查區：
-![原理圖檢查區](image/README/1774174272561.png)
+![原理圖檢查區](image/README/image2.png)
 
 PCB 檢查區：
-![PCB 檢查區](image/README/1774174409715.png)
+![PCB 檢查區](image/README/image3.png)
 
 報告舞台與歷史記錄：
-![報告舞台與歷史記錄](image/README/1774174479401.png)
+![報告舞台與歷史記錄](image/README/image4.png)
 
 參數設定與 AI 區：
-![參數設定與 AI 區](image/README/1774174573274.png)
+![參數設定與 AI 區](image/README/image5.png)
 
 AI 分析結果示例：
-![AI 分析結果示例](image/README/1774174599341.png)
+![AI 分析結果示例](image/README/image6.png)
 
 ## AI 使用說明
 
@@ -68,3 +68,4 @@ npm run build
 
 - 嘉立創 EDA 擴展 API 指南: <https://prodocs.lceda.cn/cn/api/guide/>
 - API 呼叫說明: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+

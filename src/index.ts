@@ -341,7 +341,12 @@ function isReport(value: unknown): value is Report {
 	}
 
 	const candidate = value as Partial<Report>;
-	return typeof candidate.context === 'string' && typeof candidate.generatedAt === 'string' && Array.isArray(candidate.lines) && typeof candidate.title === 'string';
+	return (
+		typeof candidate.context === 'string' &&
+		typeof candidate.generatedAt === 'string' &&
+		Array.isArray(candidate.lines) &&
+		typeof candidate.title === 'string'
+	);
 }
 
 function getLatestReport(): Report | undefined {
@@ -585,7 +590,9 @@ function normalizeMessageContent(content: unknown): string | undefined {
 		}
 
 		const objectItem = item as Record<string, unknown>;
-		const value = cleanString(typeof objectItem.text === 'string' ? objectItem.text : typeof objectItem.content === 'string' ? objectItem.content : undefined);
+		const value = cleanString(
+			typeof objectItem.text === 'string' ? objectItem.text : typeof objectItem.content === 'string' ? objectItem.content : undefined,
+		);
 		if (value) {
 			chunks.push(value);
 		}
@@ -671,10 +678,7 @@ async function buildAiPrompt(task: AiAgentTask, prompt?: string): Promise<string
 	const [context, settings] = await Promise.all([getCurrentContext(), ensureSettings()]);
 	const latestReport = getLatestReport();
 	const documentSummary = await getPanelDocumentSummary(context);
-	const denseNets =
-		context === 'pcb'
-			? await collectCurrentPcbDenseNetEntries(settings, settings.topNetCount, settings.denseNetThreshold)
-			: [];
+	const denseNets = context === 'pcb' ? await collectCurrentPcbDenseNetEntries(settings, settings.topNetCount, settings.denseNetThreshold) : [];
 
 	if (!latestReport && task !== 'customPrompt') {
 		throw new Error('请先生成至少一份报告，再调用 AI 助手。');
@@ -789,12 +793,7 @@ async function runAiAgentTask(task: AiAgentTask, prompt?: string): Promise<AiAge
 	return result;
 }
 
-function collectPcbNetCounter(
-	components: Array<unknown>,
-	vias: Array<unknown>,
-	lines: Array<unknown>,
-	arcs: Array<unknown>,
-): Map<string, number> {
+function collectPcbNetCounter(components: Array<unknown>, vias: Array<unknown>, lines: Array<unknown>, arcs: Array<unknown>): Map<string, number> {
 	const netCounter = new Map<string, number>();
 
 	for (const component of components) {
@@ -846,20 +845,23 @@ async function collectCurrentPcbDenseNetEntries(
 
 async function buildSchematicReport(): Promise<Report> {
 	const settings = await ensureSettings();
-	const [boardInfo, schematicInfo, pageInfo, currentDocumentInfo, teamInfo, workspaceInfo, components, wires, texts, buses, selectedPrimitives] = await Promise.all([
-		eda.dmt_Board.getCurrentBoardInfo(),
-		eda.dmt_Schematic.getCurrentSchematicInfo(),
-		eda.dmt_Schematic.getCurrentSchematicPageInfo(),
-		eda.dmt_SelectControl.getCurrentDocumentInfo(),
-		eda.dmt_Team.getCurrentTeamInfo(),
-		eda.dmt_Workspace.getCurrentWorkspaceInfo(),
-		eda.sch_PrimitiveComponent.getAll(),
-		eda.sch_PrimitiveWire.getAll(),
-		eda.sch_PrimitiveText.getAll(),
-		eda.sch_PrimitiveBus.getAll(),
-		eda.sch_SelectControl.getAllSelectedPrimitives(),
-	]);
-	const projectInfo = currentDocumentInfo?.parentProjectUuid ? await eda.dmt_Project.getProjectInfo(currentDocumentInfo.parentProjectUuid) : undefined;
+	const [boardInfo, schematicInfo, pageInfo, currentDocumentInfo, teamInfo, workspaceInfo, components, wires, texts, buses, selectedPrimitives] =
+		await Promise.all([
+			eda.dmt_Board.getCurrentBoardInfo(),
+			eda.dmt_Schematic.getCurrentSchematicInfo(),
+			eda.dmt_Schematic.getCurrentSchematicPageInfo(),
+			eda.dmt_SelectControl.getCurrentDocumentInfo(),
+			eda.dmt_Team.getCurrentTeamInfo(),
+			eda.dmt_Workspace.getCurrentWorkspaceInfo(),
+			eda.sch_PrimitiveComponent.getAll(),
+			eda.sch_PrimitiveWire.getAll(),
+			eda.sch_PrimitiveText.getAll(),
+			eda.sch_PrimitiveBus.getAll(),
+			eda.sch_SelectControl.getAllSelectedPrimitives(),
+		]);
+	const projectInfo = currentDocumentInfo?.parentProjectUuid
+		? await eda.dmt_Project.getProjectInfo(currentDocumentInfo.parentProjectUuid)
+		: undefined;
 
 	const componentPrefixCounter = new Map<string, number>();
 	let realComponentCount = 0;
@@ -936,7 +938,23 @@ async function buildSchematicReport(): Promise<Report> {
 
 async function buildPcbReport(): Promise<Report> {
 	const settings = await ensureSettings();
-	const [boardInfo, pcbInfo, currentDocumentInfo, teamInfo, workspaceInfo, components, pads, vias, lines, arcs, pours, fills, regions, strings, selectedPrimitives] = await Promise.all([
+	const [
+		boardInfo,
+		pcbInfo,
+		currentDocumentInfo,
+		teamInfo,
+		workspaceInfo,
+		components,
+		pads,
+		vias,
+		lines,
+		arcs,
+		pours,
+		fills,
+		regions,
+		strings,
+		selectedPrimitives,
+	] = await Promise.all([
 		eda.dmt_Board.getCurrentBoardInfo(),
 		eda.dmt_Pcb.getCurrentPcbInfo(),
 		eda.dmt_SelectControl.getCurrentDocumentInfo(),
@@ -953,7 +971,9 @@ async function buildPcbReport(): Promise<Report> {
 		eda.pcb_PrimitiveString.getAll(),
 		eda.pcb_SelectControl.getAllSelectedPrimitives(),
 	]);
-	const projectInfo = currentDocumentInfo?.parentProjectUuid ? await eda.dmt_Project.getProjectInfo(currentDocumentInfo.parentProjectUuid) : undefined;
+	const projectInfo = currentDocumentInfo?.parentProjectUuid
+		? await eda.dmt_Project.getProjectInfo(currentDocumentInfo.parentProjectUuid)
+		: undefined;
 
 	const layerCounter = new Map<string, number>();
 	const componentPrefixCounter = new Map<string, number>();
@@ -1034,7 +1054,9 @@ async function buildSelectionReport(context: ReportContext): Promise<Report> {
 		context === 'pcb' ? await eda.pcb_SelectControl.getAllSelectedPrimitives() : await eda.sch_SelectControl.getAllSelectedPrimitives();
 	const title = context === 'pcb' ? 'Design Copilot PCB 选区快照' : 'Design Copilot 原理图选区快照';
 	const documentName =
-		context === 'pcb' ? (await eda.dmt_Pcb.getCurrentPcbInfo())?.name ?? '未知 PCB' : (await eda.dmt_Schematic.getCurrentSchematicPageInfo())?.name ?? '未知页';
+		context === 'pcb'
+			? ((await eda.dmt_Pcb.getCurrentPcbInfo())?.name ?? '未知 PCB')
+			: ((await eda.dmt_Schematic.getCurrentSchematicPageInfo())?.name ?? '未知页');
 
 	return {
 		context,
@@ -1055,7 +1077,10 @@ async function buildSchematicDrcReport(): Promise<Report> {
 		context: 'sch',
 		generatedAt: createTimestamp(),
 		title: 'Design Copilot 原理图 DRC',
-		lines: [`当前页：${pageInfo?.name ?? '未知页'}`, passed ? '结果：未发现阻断性错误。' : '结果：存在需要关注的 DRC 问题，请打开原理图 DRC 面板进一步检查。'],
+		lines: [
+			`当前页：${pageInfo?.name ?? '未知页'}`,
+			passed ? '结果：未发现阻断性错误。' : '结果：存在需要关注的 DRC 问题，请打开原理图 DRC 面板进一步检查。',
+		],
 	};
 }
 
@@ -1098,9 +1123,7 @@ function createFallbackPanelState(): PanelState {
 	};
 }
 
-async function getPanelDocumentSummary(
-	context: ReportContext,
-): Promise<{ contextLabel: string; documentName: string; documentSubtitle: string }> {
+async function getPanelDocumentSummary(context: ReportContext): Promise<{ contextLabel: string; documentName: string; documentSubtitle: string }> {
 	if (context === 'sch') {
 		const pageInfo = await eda.dmt_Schematic.getCurrentSchematicPageInfo();
 		return {
@@ -1131,9 +1154,9 @@ async function buildPanelState(): Promise<PanelState> {
 	const [documentSummary, denseNets] = await Promise.all([
 		getPanelDocumentSummary(context),
 		context === 'pcb'
-			? collectCurrentPcbDenseNetEntries(settings, Math.max(settings.topNetCount, REPORT_HISTORY_LIMIT), settings.denseNetThreshold).then((entries) =>
-					entries.map(([name, count]) => ({ count, name })),
-			  )
+			? collectCurrentPcbDenseNetEntries(settings, Math.max(settings.topNetCount, REPORT_HISTORY_LIMIT), settings.denseNetThreshold).then(
+					(entries) => entries.map(([name, count]) => ({ count, name })),
+				)
 			: Promise.resolve([] as Array<PanelDenseNet>),
 	]);
 
@@ -1648,21 +1671,3 @@ export function saveCurrentDesign(): void {
 		showToast(saved ? '当前设计已保存' : '保存失败，请检查文档状态');
 	});
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
