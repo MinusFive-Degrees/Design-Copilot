@@ -48,6 +48,9 @@ PCB レビュー領域：
 AI 分析結果の例：
 ![AI 分析結果の例](image/README/image6.png)
 
+AI 自由質問の例：
+![AI 自由質問の例](image/README/image7.png)
+
 ## AI 利用メモ
 
 - AI 機能に内蔵クラウドモデルはなく、呼び出し先は自分で入力したカスタムエンドポイントです
@@ -68,4 +71,8 @@ npm run build
 
 - 嘉立創 EDA 拡張 API ガイド: <https://prodocs.lceda.cn/cn/api/guide/>
 - API 呼び出しガイド: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+
+
+
+
 

@@ -48,6 +48,9 @@ Settings and AI area:
 AI analysis example:
 ![AI analysis example](image/README/image6.png)
 
+AI custom Q&A example:
+![AI custom Q&A example](image/README/image7.png)
+
 ## AI Notes
 
 - AI features do not ship with a built-in cloud model; requests use the custom endpoint you provide
@@ -68,4 +71,8 @@ Packaged `.eext` files are written to `build/dist/`.
 
 - JLCEDA Pro API Guide: <https://prodocs.lceda.cn/cn/api/guide/>
 - API Invocation Guide: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+
+
+
+
 

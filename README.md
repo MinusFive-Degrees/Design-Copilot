@@ -48,6 +48,9 @@ PCB 检查区：
 AI 分析结果示例：
 ![AI 分析结果示例](image/README/image6.png)
 
+AI 自定义问答示例：
+![AI 自定义问答示例](image/README/image7.png)
+
 ## AI 使用说明
 
 - AI 能力默认不绑定任何云服务，模型调用完全依赖你填写的自定义接口
@@ -68,4 +71,8 @@ npm run build
 
 - 嘉立创 EDA 扩展 API 指南: <https://prodocs.lceda.cn/cn/api/guide/>
 - API 调用说明: <https://prodocs.lceda.cn/cn/api/guide/invoke-apis.html>
+
+
+
+
 
